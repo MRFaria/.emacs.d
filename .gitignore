@@ -1,0 +1,16 @@
+#early-init.el#
+.init.el.swp
+.org-id-locations
+auto-save-list/
+custom.el
+custom.el~
+eln-cache/
+elpa/
+eshell/
+history
+init.el_bak
+init.el~
+projects
+recentf
+transient/
+
