@@ -21,13 +21,12 @@
 ;; Lazy prompting
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; Set up package priorities
-(with-eval-after-load 'package
-  (setq package-archive-priorities
-        '(("gnu" . 10)          ;; Highest priority
-          ("nongnu" . 5)       ;; Second priority
-          ("melpa" . 15)         ;; Lower than gnu/nongnu
-          ("melpa-stable" . 0)))) ;; Lowest priority, i know, but packages are pretty old
+;; Set up packages
+(require 'package)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
 
 ;; Make sure use package is installed
 (unless (package-installed-p 'use-package)
@@ -53,7 +52,7 @@
               ("RET" . icomplete-force-complete-and-exit))
   :hook
   (after-init . (lambda ()
-                  (fido-mode -1)
+                  (fido-mode 1)
                   ;; (icomplete-mode 1)
                   (icomplete-vertical-mode 1)
                   ))
@@ -118,32 +117,33 @@
   (which-key-add-key-based-replacements
    "M-m ?" "top level bindings"))
 
-;; Fleeting notes
-(use-package org
-  :after
-  denote
-  :bind
-  (("C-c c" . org-capture)
-   ("C-c l" . org-store-link))
-  :custom
-  (setq org-image-actual-width 200)
-  (org-default-notes-file ews-inbox-file)
-  (org-capture-bookmark nil)
-  ;; Capture templates
-  (org-capture-templates
-   '(("f" "Fleeting note" item
-      (file+headline org-default-notes-file "Notes")
-      "- %?")
-     ("p" "Permanent note" plain
-      (file denote-last-path)
-      #'denote-org-capture
-      :no-save t
-      :immediate-finish nil
-      :kill-buffer t
-      :jump-to-captured t)
-     ("t" "New task" entry
-      (file+headline org-default-notes-file "Tasks")
-      "* TODO %i%?"))))
+;; Org mode
+(setq org-image-actual-width '(1024))
+(setq org-startup-with-inline-images t)
+(use-package org-sliced-images
+  :ensure t
+  :config (org-sliced-images-mode))
+
+(use-package denote-org
+  :ensure t
+  :commands
+  ;; I list the commands here so that you can discover them more
+  ;; easily.  You might want to bind the most frequently used ones to
+  ;; the `org-mode-map'.
+  ( denote-org-link-to-heading
+    denote-org-backlinks-for-heading
+
+    denote-org-extract-org-subtree
+
+    denote-org-convert-links-to-file-type
+    denote-org-convert-links-to-denote-type
+
+    denote-org-dblock-insert-files
+    denote-org-dblock-insert-links
+    denote-org-dblock-insert-backlinks
+    denote-org-dblock-insert-missing-links
+    denote-org-dblock-insert-files-as-headings))
+
 
 ;; Markdown mode
 (use-package markdown-mode
@@ -163,7 +163,6 @@
 (use-package gdscript-mode
   :ensure t
   :hook (gdscript-mode . eglot-ensure))
-
 (add-to-list 'major-mode-remap-alist
 	     '(gdscript-mode . gdscript-ts-mode)
 	     '(sh-mode . bash-ts-mode))
