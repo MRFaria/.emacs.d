@@ -21,15 +21,21 @@
 ;; Cua mode
 (cua-mode 1)
 
+;; Use control + arrow to change window
+(windmove-default-keybindings 'meta)
+
 ;; ibuffer and dired
 (global-set-key [remap list-buffers] 'ibuffer)
 (setq-default dired-listing-switches "-alh")
 (require 'dired-x)
+(add-hook 'dired-mode-hook 'hl-line-mode)
 
+;; Maximise frame and change active window size
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Tab bar
 (tab-bar-mode t)
+(tool-bar-mode 0)
 (global-set-key (kbd "M-[") 'tab-bar-history-back)
 (global-set-key (kbd "M-]") 'tab-bar-history-forward)
 
@@ -41,10 +47,14 @@
 
 ;; Set up packages
 (require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-                         ("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
+(setq package-archives
+      '(("GNU ELPA"     . "https://elpa.gnu.org/packages/")
+        ("MELPA Stable" . "https://stable.melpa.org/packages/")
+        ("MELPA"        . "https://melpa.org/packages/"))
+      package-archive-priorities
+      '(("MELPA Stable" . 0)
+        ("GNU ELPA"     . 5)
+        ("MELPA"        . 10)))
 
 ;; Make sure use package is installed
 (unless (package-installed-p 'use-package)
@@ -76,8 +86,7 @@
                   ))
   :config
   (setq tab-always-indent 'complete)  ;; Starts completion with TAB
-  (setq icomplete-delay-completions-threshold 0)
-  (setq icomplete-compute-delay 0)
+  (setq completion-cycle-threshold t)
   (setq icomplete-show-matches-on-no-input t)
   (setq icomplete-hide-common-prefix nil)
   (setq icomplete-prospects-height 10)
@@ -88,6 +97,23 @@
   (setq icomplete-scroll t)
   (advice-add 'completion-at-point
               :after #'minibuffer-hide-completions))
+
+;; Recent Files
+(use-package recentf
+  :config
+  (setq recentf-auto-cleanup 'never) ;; prevent issues with Tramp
+  (setq recentf-max-saved-items 100)
+  (setq recentf-max-menu-items 15)
+  (recentf-mode t)
+
+  (defun my/recentf-ido-find-file ()
+    "Find a recent file using ido."
+    (interactive)
+    (let ((file (completing-read "Choose recent file: " recentf-list nil t)))
+      (when file
+        (find-file file))))
+
+  :bind ("C-x f" . my/recentf-ido-find-file))
 
 ;; Recent Files
 (use-package recentf
@@ -142,26 +168,53 @@
   :ensure t
   :config (org-sliced-images-mode))
 
-(use-package denote-org
+;; Denote
+(use-package denote
   :ensure t
-  :commands
-  ;; I list the commands here so that you can discover them more
-  ;; easily.  You might want to bind the most frequently used ones to
-  ;; the `org-mode-map'.
-  ( denote-org-link-to-heading
-    denote-org-backlinks-for-heading
+  :commands (denote denote-open-or-create)
+  :config
+  ;; Pick dates, where relevant, with Org's advanced interface:
+  (setq denote-date-prompt-use-org-read-date t)
+  (defun my/denote--weekly-template ()
+    (concat "* Monday"
+            "\n\n"
+            "* Tuesday"
+            "\n\n"
+            "* Wednesday"
+            "\n\n"
+            "* Thursday"
+            "\n\n"
+            "* Friday"
+            "\n\n"
+	    "* Saturday"
+	    "\n\n"
+	    "* Sunday"
+	    "\n\n"
+            "* Notes"))
 
-    denote-org-extract-org-subtree
+  (setq denote-templates `((weekly . ,(my/denote--weekly-template))))
 
-    denote-org-convert-links-to-file-type
-    denote-org-convert-links-to-denote-type
+  (defun my/denote-weekly ()
+    "Find or create a weekly journal entry."
+    (interactive)
+    (let* ((display-time (format-time-string "%G-%U" (current-time)))
+           (title (concat "week-" display-time))
+           (pattern (concat ".*--" title))
+           (matches (denote-directory-files pattern)))
+      (if matches
+          (find-file (car matches))
+	(denote title '("journal" "weekly") 'org nil nil 'weekly))))
+  
+  ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
+  (denote-rename-buffer-mode 1)
+  (setq denote-directory (expand-file-name "~/SynologyDrive/notes"))
+  (setq denote-file-type 'org) ;; Default file format
+  (setq denote-known-keywords '("work" "personal" "ideas"))
+  :bind
+  ("<f7>" . my/denote-weekly))
 
-    denote-org-dblock-insert-files
-    denote-org-dblock-insert-links
-    denote-org-dblock-insert-backlinks
-    denote-org-dblock-insert-missing-links
-    denote-org-dblock-insert-files-as-headings))
-
+(use-package denote-org :ensure t)
+(use-package denote-search :ensure t)
 
 ;; Markdown mode
 (use-package markdown-mode
@@ -177,7 +230,7 @@
        (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
        (bash "https://github.com/tree-sitter/tree-sitter-bash")))
 
-;; Godot
+;; Gogdot
 (use-package gdscript-mode
   :ensure t
   :hook (gdscript-mode . eglot-ensure))
@@ -206,10 +259,12 @@
   ;; bookmarks when it closes, which may never happen properly
   ;; (e.g. power failure).
   (setq bookmark-save-flag 1)
-  :bind ("<f9>" . bookmark-jump)
-  ("<f10>" . bookmark-set))
+  :bind
+  ("<f8>" . bookmark-jump)
+  ("<f9>" . bookmark-set))
 
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x C-g" . magit-status)))
+
