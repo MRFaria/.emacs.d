@@ -1,4 +1,7 @@
 ;; Set up custom.el file
+(when (file-exists-p "work.el")
+  (load "work.el"))
+
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (and custom-file
            (file-exists-p custom-file))
@@ -13,7 +16,24 @@
 ;; Remove annoying bell
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
+
+;; Cua mode
 (cua-mode 1)
+
+;; hl-line-mode
+(global-hl-line-mode 1)
+
+;; ibuffer and dired
+(global-set-key [remap list-buffers] 'ibuffer)
+(setq-default dired-listing-switches "-alh")
+(require 'dired-x)
+
+(toggle-frame-maximized)
+
+;; Tab bar
+(tab-bar-mode t)
+(global-set-key (kbd "M-[") 'tab-bar-history-back)
+(global-set-key (kbd "M-]") 'tab-bar-history-forward)
 
 ;; Increase large file warning
 (setq large-file-warning-threshold (* 15 1024 1024))
@@ -173,3 +193,20 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+;; Configure bookmarks
+(use-package bookmark
+  :ensure nil
+  :commands (bookmark-set bookmark-jump bookmark-bmenu-list)
+  :hook (bookmark-bmenu-mode . hl-line-mode)
+  :config
+  (setq bookmark-use-annotations nil)
+  (setq bookmark-automatically-show-annotations nil)
+  (setq bookmark-fringe-mark nil) ; Emacs 29 to hide bookmark fringe icon
+  ;; Write changes to the bookmark file as soon as 1 modification is
+  ;; made (addition or deletion).  Otherwise Emacs will only save the
+  ;; bookmarks when it closes, which may never happen properly
+  ;; (e.g. power failure).
+  (setq bookmark-save-flag 1)
+  :bind ("<f9>" . bookmark-jump)
+        ("<f11>" . bookmark-set))
