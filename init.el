@@ -1,6 +1,7 @@
 ;; Set up custom.el file
-(when (file-exists-p "work.el")
-  (load "work.el"))
+(when (file-exists-p "~/.emacs.d/work.el")
+  (load-file "~/.emacs.d/work.el")
+  (message "loaded work file"))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (and custom-file
@@ -20,15 +21,12 @@
 ;; Cua mode
 (cua-mode 1)
 
-;; hl-line-mode
-(global-hl-line-mode 1)
-
 ;; ibuffer and dired
 (global-set-key [remap list-buffers] 'ibuffer)
 (setq-default dired-listing-switches "-alh")
 (require 'dired-x)
 
-(toggle-frame-maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Tab bar
 (tab-bar-mode t)
@@ -209,4 +207,9 @@
   ;; (e.g. power failure).
   (setq bookmark-save-flag 1)
   :bind ("<f9>" . bookmark-jump)
-        ("<f11>" . bookmark-set))
+  ("<f10>" . bookmark-set))
+
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-status)))
