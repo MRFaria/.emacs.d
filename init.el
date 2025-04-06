@@ -1,3 +1,9 @@
+;; Cua mode
+(cua-mode t)
+
+(setq backup-directory-alist `(("." . ,(expand-file-name "var/backups" user-emacs-directory))))
+(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "var/auto-save/" user-emacs-directory) t)))
+
 ;; Set up custom.el file
 (when (file-exists-p "~/.emacs.d/work.el")
   (load-file "~/.emacs.d/work.el")
@@ -17,9 +23,6 @@
 ;; Remove annoying bell
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
-
-;; Cua mode
-(cua-mode 1)
 
 ;; Use control + arrow to change window
 (windmove-default-keybindings 'meta)
@@ -71,16 +74,19 @@
   (exec-path-from-shell-initialize))
 
 ;; Fido (icomplete now includes fuzzy matching for M-x and other completions)
-(use-package fide-vertical-mode
-  :init
-  (fido-vertical-mode t)
-  :bind (:map icomplete-minibuffer-map
-              ("C-n" . icomplete-forward-completions)
-              ("C-p" . icomplete-backward-completions)
-              ("C-v" . icomplete-vertical-toggle))
-  :config
-  (setq icomplete-in-buffer t)
-  (advice-add 'completion-at-point :after #'minibuffer-hide-completions))
+(fido-vertical-mode 1)
+(define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
+(define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
+(define-key icomplete-minibuffer-map (kbd "RET") 'icomplete-fido-exit)
+(setq tab-always-indent 'complete)  ;; Starts completion with TAB
+(setq completion-cycle-threshold t)
+(setq icomplete-show-matches-on-no-input t)
+(setq icomplete-hide-common-prefix nil)
+(setq icomplete-prospects-height 10)
+(setq icomplete-with-completion-tables t)
+(setq icomplete-in-buffer t)
+(setq icomplete-scroll t)
+(advice-add 'completion-at-point :after #'minibuffer-hide-completions)
 
 ;; Recent Files
 (use-package recentf
@@ -252,3 +258,6 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+;; Cua mode
+(cua-mode t)
