@@ -1,6 +1,5 @@
 ;; Cua mode
 (cua-mode t)
-
 (setq backup-directory-alist `(("." . ,(expand-file-name "var/backups" user-emacs-directory))))
 (setq auto-save-file-name-transforms `((".*" ,(expand-file-name "var/auto-save/" user-emacs-directory) t)))
 
