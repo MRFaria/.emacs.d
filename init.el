@@ -65,38 +65,22 @@
 (require 'bind-key)
 
 ;; Slurp environment variables from the shell.
-;; a.k.a. The Most Asked Question On r/emacs
 (use-package exec-path-from-shell
   :ensure t
   :config
   (exec-path-from-shell-initialize))
 
 ;; Fido (icomplete now includes fuzzy matching for M-x and other completions)
-(use-package icomplete
+(use-package fide-vertical-mode
+  :init
+  (fido-vertical-mode t)
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
               ("C-p" . icomplete-backward-completions)
-              ("C-v" . icomplete-vertical-toggle)
-              ("RET" . icomplete-force-complete-and-exit))
-  :hook
-  (after-init . (lambda ()
-                  (fido-mode 1)
-                  ;; (icomplete-mode 1)
-                  (icomplete-vertical-mode 1)
-                  ))
+              ("C-v" . icomplete-vertical-toggle))
   :config
-  (setq tab-always-indent 'complete)  ;; Starts completion with TAB
-  (setq completion-cycle-threshold t)
-  (setq icomplete-show-matches-on-no-input t)
-  (setq icomplete-hide-common-prefix nil)
-  (setq icomplete-prospects-height 10)
-  (setq icomplete-separator " . ")
-  (setq icomplete-with-completion-tables t)
   (setq icomplete-in-buffer t)
-  (setq icomplete-max-delay-chars 0)
-  (setq icomplete-scroll t)
-  (advice-add 'completion-at-point
-              :after #'minibuffer-hide-completions))
+  (advice-add 'completion-at-point :after #'minibuffer-hide-completions))
 
 ;; Recent Files
 (use-package recentf
@@ -113,7 +97,7 @@
       (when file
         (find-file file))))
 
-  :bind ("C-x f" . my/recentf-ido-find-file))
+  :bind ("C-x r" . my/recentf-ido-find-file))
 
 ;; Recent Files
 (use-package recentf
@@ -197,7 +181,7 @@
   (defun my/denote-weekly ()
     "Find or create a weekly journal entry."
     (interactive)
-    (let* ((display-time (format-time-string "%G-%U" (current-time)))
+    (let* ((display-time (format-time-string "%G-%V" (current-time)))
            (title (concat "week-" display-time))
            (pattern (concat ".*--" title))
            (matches (denote-directory-files pattern)))
@@ -230,20 +214,13 @@
        (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
        (bash "https://github.com/tree-sitter/tree-sitter-bash")))
 
-;; Gogdot
+;; Godot
 (use-package gdscript-mode
   :ensure t
   :hook (gdscript-mode . eglot-ensure))
 (add-to-list 'major-mode-remap-alist
 	     '(gdscript-mode . gdscript-ts-mode)
 	     '(sh-mode . bash-ts-mode))
-
-;; Make escape key stronger
-(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
 ;; Configure bookmarks
 (use-package bookmark
@@ -263,8 +240,15 @@
   ("<f8>" . bookmark-jump)
   ("<f9>" . bookmark-set))
 
+;; Version control
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x C-g" . magit-status)))
 
+;; Make escape key stronger
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
