@@ -14,3 +14,9 @@ projects
 recentf
 transient/
 
+/#work.el#
+/bookmarks
+/tree-sitter/
+/url/
+/var/
+/work.el

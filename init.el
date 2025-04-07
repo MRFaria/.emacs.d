@@ -3,9 +3,7 @@
 
 (load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
-(let ((dir (no-littering-expand-var-file-name "lock-files/")))
-  (make-directory dir t)
-  (setq lock-file-name-transforms `((".*" ,dir t))))
+(no-littering-theme-backups)
 
 ;; Set up custom.el file
 (when (file-exists-p "~/.emacs.d/work.el")
@@ -19,7 +17,7 @@
 
 ;; No welcome screen - opens directly in scratch buffer
 (setq inhibit-startup-message t
-      initial-scratch-message "Hello there Mauro"
+      initial-scratch-message "Hello there Mauro\nF7 - notes\nF8/F9 - bookmarks"
       initial-major-mode 'fundamental-mode
       inhibit-splash-screen t)
 
@@ -118,7 +116,7 @@
       (when file
         (find-file file))))
 
-  :bind ("C-x f" . my/recentf-ido-find-file))
+  :bind ("C-x r" . my/recentf-ido-find-file))
 
 ;; Manage the browser
 (use-package eww
