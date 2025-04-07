@@ -81,8 +81,8 @@
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
               ("C-p" . icomplete-backward-completions)
-              ;("RET" . icomplete-force-complete-and-exit)
-              ("RET" . icomplete-fido-exit))
+              ("RET" . icomplete-force-complete-and-exit)
+              ("C-j" . icomplete-fido-exit))
   :hook
   (after-init . (lambda ()
                   (fido-mode 1)
@@ -152,33 +152,45 @@
 ;; Org mode
 (setq org-image-actual-width '(1024))
 (setq org-startup-with-inline-images t)
+(setq org-hide-emphasis-markers t)
+(setq org-agenda-skip-scheduled-if-done t)
+(setq org-agenda-skip-deadline-if-done t)
+(setq org-agenda-skip-function-global '(org-agenda-skip-entry-if 'todo 'done))
+
 (use-package org-sliced-images
   :ensure t
   :config (org-sliced-images-mode))
 
+
+(defun jab/denote-add-to-agenda-files (keyword)
+  "Add files containing 'keyword' to `org-agenda-files` without duplication.
+Ignores backup files (`~`) and auto-save files (`#...#`)."
+  (interactive)
+  (let ((new-files (seq-filter 
+                    (lambda (f) (and (not (string-suffix-p "~" f))
+                                     (not (string-match-p "/#.*#$" f))))
+                    (directory-files denote-directory t keyword))))
+    (setq org-agenda-files 
+          (delete-dups (append org-agenda-files new-files)))))
 ;; Denote
 (use-package denote
   :ensure t
   :commands (denote denote-open-or-create)
   :config
   ;; Pick dates, where relevant, with Org's advanced interface:
+  ;; Add all Denote files tagged as "project" to org-agenda-files
   (setq denote-date-prompt-use-org-read-date t)
+
   (defun my/denote--weekly-template ()
-    (concat "* Monday"
-            "\n\n"
-            "* Tuesday"
-            "\n\n"
-            "* Wednesday"
-            "\n\n"
-            "* Thursday"
-            "\n\n"
-            "* Friday"
-            "\n\n"
-	    "* Saturday"
-	    "\n\n"
-	    "* Sunday"
-	    "\n\n"
-            "* Notes"))
+  (concat "#+category: journal\n\n"
+          "* Monday\n\n"
+          "* Tuesday\n\n"
+          "* Wednesday\n\n"
+          "* Thursday\n\n"
+          "* Friday\n\n"
+          "* Saturday\n\n"
+          "* Sunday\n\n"
+          "* Notes"))
 
   (setq denote-templates `((weekly . ,(my/denote--weekly-template))))
 
@@ -195,9 +207,14 @@
   
   ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
   (denote-rename-buffer-mode 1)
-  (setq denote-directory (expand-file-name "~/SynologyDrive/notes"))
+  (if (file-exists-p "~/.emacs.d/work.el")
+      (setq denote-directory (expand-file-name "~/notes"))
+    (setq denote-directory (expand-file-name "~/SynologyDrive/notes")))
   (setq denote-file-type 'org) ;; Default file format
   (setq denote-known-keywords '("work" "personal" "ideas"))
+
+  (jab/denote-add-to-agenda-files "__journal")
+  
   :bind
   ("<f7>" . my/denote-weekly))
 
