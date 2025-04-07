@@ -79,15 +79,16 @@
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
               ("C-p" . icomplete-backward-completions)
-              ("RET" . icomplete-force-complete-and-exit)
-              ("C-j" . icomplete-fido-exit))
+	      )
   :hook
   (after-init . (lambda ()
-                  (fido-mode 1)
-                  ;; (icomplete-mode 1)
-                  (fido-vertical-mode 1)
+                  (icomplete-mode 1)
+                  (icomplete-vertical-mode 1)
                   ))
   :config
+ (defun my-icomplete-styles ()
+   (setq-local completion-styles '(initials flex)))
+ (add-hook 'icomplete-minibuffer-setup-hook 'my-icomplete-styles)
   (setq tab-always-indent 'complete)  ;; Starts completion with TAB
   (setq completion-cycle-threshold t)
   (setq icomplete-show-matches-on-no-input t)
@@ -100,6 +101,7 @@
   (setq icomplete-scroll t)
   (advice-add 'completion-at-point
               :after #'minibuffer-hide-completions))
+
 
 ;; Recent Files
 (use-package recentf
