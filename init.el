@@ -1,7 +1,11 @@
 ;; Cua mode
 (cua-mode t)
-(setq backup-directory-alist `(("." . ,(expand-file-name "var/backups" user-emacs-directory))))
-(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "var/auto-save/" user-emacs-directory) t)))
+
+(load-file "~/.emacs.d/no-littering.el")
+(require 'no-littering)
+(let ((dir (no-littering-expand-var-file-name "lock-files/")))
+  (make-directory dir t)
+  (setq lock-file-name-transforms `((".*" ,dir t))))
 
 ;; Set up custom.el file
 (when (file-exists-p "~/.emacs.d/work.el")
@@ -73,36 +77,31 @@
   (exec-path-from-shell-initialize))
 
 ;; Fido (icomplete now includes fuzzy matching for M-x and other completions)
-(fido-vertical-mode 1)
-(define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
-(define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
-(define-key icomplete-minibuffer-map (kbd "RET") 'icomplete-fido-exit)
-(setq tab-always-indent 'complete)  ;; Starts completion with TAB
-(setq completion-cycle-threshold t)
-(setq icomplete-show-matches-on-no-input t)
-(setq icomplete-hide-common-prefix nil)
-(setq icomplete-prospects-height 10)
-(setq icomplete-with-completion-tables t)
-(setq icomplete-in-buffer t)
-(setq icomplete-scroll t)
-(advice-add 'completion-at-point :after #'minibuffer-hide-completions)
-
-;; Recent Files
-(use-package recentf
+(use-package icomplete
+  :bind (:map icomplete-minibuffer-map
+              ("C-n" . icomplete-forward-completions)
+              ("C-p" . icomplete-backward-completions)
+              ;("RET" . icomplete-force-complete-and-exit)
+              ("RET" . icomplete-fido-exit))
+  :hook
+  (after-init . (lambda ()
+                  (fido-mode 1)
+                  ;; (icomplete-mode 1)
+                  (fido-vertical-mode 1)
+                  ))
   :config
-  (setq recentf-auto-cleanup 'never) ;; prevent issues with Tramp
-  (setq recentf-max-saved-items 100)
-  (setq recentf-max-menu-items 15)
-  (recentf-mode t)
-
-  (defun my/recentf-ido-find-file ()
-    "Find a recent file using ido."
-    (interactive)
-    (let ((file (completing-read "Choose recent file: " recentf-list nil t)))
-      (when file
-        (find-file file))))
-
-  :bind ("C-x r" . my/recentf-ido-find-file))
+  (setq tab-always-indent 'complete)  ;; Starts completion with TAB
+  (setq completion-cycle-threshold t)
+  (setq icomplete-show-matches-on-no-input t)
+  (setq icomplete-hide-common-prefix nil)
+  (setq icomplete-prospects-height 10)
+  (setq icomplete-separator " . ")
+  (setq icomplete-with-completion-tables t)
+  (setq icomplete-in-buffer t)
+  (setq icomplete-max-delay-chars 0)
+  (setq icomplete-scroll t)
+  (advice-add 'completion-at-point
+              :after #'minibuffer-hide-completions))
 
 ;; Recent Files
 (use-package recentf
