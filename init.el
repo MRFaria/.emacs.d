@@ -75,10 +75,12 @@
 (require 'bind-key)
 
 ;; Slurp environment variables from the shell.
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-initialize))
+(if (file-exists-p "~/.emacs.d/work.el")
+  (message "skip shell slurp")
+  (use-package exec-path-from-shell
+    :ensure t
+    :config
+    (exec-path-from-shell-initialize)))
 
 ;; Fido (icomplete now includes fuzzy matching for M-x and other completions)
 (use-package icomplete
@@ -215,7 +217,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
   (denote-rename-buffer-mode 1)
   (if (file-exists-p "~/.emacs.d/work.el")
-      (setq denote-directory (expand-file-name "~/notes"))
+      (setq denote-directory (expand-file-name "M:/Documents/Notes"))
     (setq denote-directory (expand-file-name "~/SynologyDrive/notes")))
   (setq denote-file-type 'org) ;; Default file format
   (setq denote-known-keywords '("work" "personal" "ideas"))
