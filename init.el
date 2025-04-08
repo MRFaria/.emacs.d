@@ -27,13 +27,6 @@
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 
-;; Use control + arrow to change window
-;;(windmove-default-keybindings 'meta)
-(global-set-key (kbd "M-s-<left>")  'windmove-left)
-(global-set-key (kbd "M-s-<right>") 'windmove-right)
-(global-set-key (kbd "M-s-<up>")    'windmove-up)
-(global-set-key (kbd "M-s-<down>")  'windmove-down)
-
 ;; ibuffer and dired
 (global-set-key [remap list-buffers] 'ibuffer)
 (setq-default dired-listing-switches "-alh")
