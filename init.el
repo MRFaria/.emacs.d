@@ -1,9 +1,14 @@
-;; Cua mode
-(cua-mode t)
-
+;; prevent emacs from putting files everywhere
 (load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
 (no-littering-theme-backups)
+
+;; Cua mode
+(cua-mode t)
+
+(use-package solarized-theme
+  :ensure t
+  :init (load-theme 'solarized-light t))
 
 ;; Set up custom.el file
 (when (file-exists-p "~/.emacs.d/work.el")
@@ -26,7 +31,11 @@
 (setq ring-bell-function 'ignore)
 
 ;; Use control + arrow to change window
-(windmove-default-keybindings 'meta)
+;;(windmove-default-keybindings 'meta)
+(global-set-key (kbd "M-s-<left>")  'windmove-left)
+(global-set-key (kbd "M-s-<right>") 'windmove-right)
+(global-set-key (kbd "M-s-<up>")    'windmove-up)
+(global-set-key (kbd "M-s-<down>")  'windmove-down)
 
 ;; ibuffer and dired
 (global-set-key [remap list-buffers] 'ibuffer)
