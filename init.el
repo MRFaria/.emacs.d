@@ -3,9 +3,6 @@
 (require 'no-littering)
 (no-littering-theme-backups)
 
-;; Cua mode
-(cua-mode t)
-
 (use-package solarized-theme
   :ensure t
   :init (load-theme 'solarized-light t))
@@ -191,15 +188,16 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   (setq denote-date-prompt-use-org-read-date t)
 
   (defun my/denote--weekly-template ()
-  (concat "#+category: journal\n\n"
-          "* Monday\n\n"
-          "* Tuesday\n\n"
-          "* Wednesday\n\n"
-          "* Thursday\n\n"
-          "* Friday\n\n"
-          "* Saturday\n\n"
-          "* Sunday\n\n"
-          "* Notes"))
+    (concat
+     (format-time-string "#category: journal %G-%V\n\n" (current-time))
+     "* Monday\n\n"
+     "* Tuesday\n\n"
+     "* Wednesday\n\n"
+     "* Thursday\n\n"
+     "* Friday\n\n"
+     "* Saturday\n\n"
+     "* Sunday\n\n"
+     "* Notes"))
 
   (setq denote-templates `((weekly . ,(my/denote--weekly-template))))
 
@@ -282,3 +280,5 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+(cua-mode t)
