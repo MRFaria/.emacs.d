@@ -3,10 +3,6 @@
 (require 'no-littering)
 (no-littering-theme-backups)
 
-(use-package solarized-theme
-  :ensure t
-  :init (load-theme 'solarized-light t))
-
 ;; Set up custom.el file
 (when (file-exists-p "~/.emacs.d/work.el")
   (load-file "~/.emacs.d/work.el")
