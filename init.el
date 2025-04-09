@@ -71,33 +71,29 @@
     :config
     (exec-path-from-shell-initialize)))
 
-;; Fido (icomplete now includes fuzzy matching for M-x and other completions)
-(use-package icomplete
-  :bind (:map icomplete-minibuffer-map
-              ("C-n" . icomplete-forward-completions)
-              ("C-p" . icomplete-backward-completions)
-	      )
-  :hook
-  (after-init . (lambda ()
-                  (icomplete-mode 1)
-                  (icomplete-vertical-mode 1)
-                  ))
-  :config
- (defun my-icomplete-styles ()
-   (setq-local completion-styles '(initials flex)))
- (add-hook 'icomplete-minibuffer-setup-hook 'my-icomplete-styles)
-  (setq tab-always-indent 'complete)  ;; Starts completion with TAB
-  (setq completion-cycle-threshold t)
-  (setq icomplete-show-matches-on-no-input t)
-  (setq icomplete-hide-common-prefix nil)
-  (setq icomplete-prospects-height 10)
-  (setq icomplete-separator " . ")
-  (setq icomplete-with-completion-tables t)
-  (setq icomplete-in-buffer t)
-  (setq icomplete-max-delay-chars 0)
-  (setq icomplete-scroll t)
-  (advice-add 'completion-at-point
-              :after #'minibuffer-hide-completions))
+(setopt enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
+(setopt completion-cycle-threshold 1)                  ; TAB cycles candidates
+(setopt completions-detailed t)                        ; Show annotations
+(setopt tab-always-indent 'complete)                   ; When I hit TAB, try to complete, otherwise, indent
+;;(setopt completion-styles '(basic initials substring flex)) ; Different styles to match input to candidates
+(setq completion-styles '(flex))
+(setopt completion-auto-help 'always)                  ; Open completion always; `lazy' another option
+(setopt completions-max-height 20)                     ; This is arbitrary
+(setopt completions-detailed t)
+(setopt completions-format 'one-column)
+(setopt completions-group t)
+(setopt completion-auto-select 'second-tab)            ; Much more eager
+;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
+
+(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
+
+;; For a fancier built-in completion option, try ido-mode,
+;; icomplete-vertical, or fido-mode. See also the file extras/base.el
+
+;(icomplete-vertical-mode)
+;(fido-vertical-mode)
+;(setopt icomplete-delay-completions-threshold 4000)
+
 
 
 ;; Recent Files
