@@ -3,11 +3,10 @@
 (require 'no-littering)
 (no-littering-theme-backups)
 
-;; Set up custom.el file
+;; Set up custom.el file and work startup file
 (when (file-exists-p "~/.emacs.d/work.el")
   (load-file "~/.emacs.d/work.el")
   (message "loaded work file"))
-
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (and custom-file
            (file-exists-p custom-file))
@@ -63,38 +62,18 @@
   (require 'use-package))
 (require 'bind-key)
 
-;; Slurp environment variables from the shell.
-(if (file-exists-p "~/.emacs.d/work.el")
-  (message "skip shell slurp")
-  (use-package exec-path-from-shell
-    :ensure t
-    :config
-    (exec-path-from-shell-initialize)))
 
-(setopt enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
-(setopt completion-cycle-threshold 1)                  ; TAB cycles candidates
-(setopt completions-detailed t)                        ; Show annotations
-(setopt tab-always-indent 'complete)                   ; When I hit TAB, try to complete, otherwise, indent
-;;(setopt completion-styles '(basic initials substring flex)) ; Different styles to match input to candidates
+(setq enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
+(setq completion-cycle-threshold 1)                  ; TAB cycles candidates
+(setq completions-detailed t)                        ; Show annotations
+(setq tab-always-indent 'complete)                   ; When I hit TAB, try to complete, otherwise, indent
 (setq completion-styles '(flex))
-(setopt completion-auto-help 'always)                  ; Open completion always; `lazy' another option
-(setopt completions-max-height 20)                     ; This is arbitrary
-(setopt completions-detailed t)
-(setopt completions-format 'one-column)
-(setopt completions-group t)
-(setopt completion-auto-select 'second-tab)            ; Much more eager
-;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
-
-(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
-
-;; For a fancier built-in completion option, try ido-mode,
-;; icomplete-vertical, or fido-mode. See also the file extras/base.el
-
-;(icomplete-vertical-mode)
-;(fido-vertical-mode)
-;(setopt icomplete-delay-completions-threshold 4000)
-
-
+(setq completion-auto-help 'always)                  ; Open completion always; `lazy' another option
+(setq completion-auto-select 'second-tab)
+(setq completions-format 'one-column)
+(setq completions-max-height 10)
+(setq completions-group t)
+;(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
 ;; Recent Files
 (use-package recentf
@@ -123,11 +102,6 @@
   :config
   (progn
     (add-hook 'eww-mode-hook 'visual-line-mode)))
-
-;; Restart emacs from emacs
-(use-package restart-emacs
-  :ensure t
-  :bind* (("C-x M-c" . restart-emacs)))
 
 ;; Useful for remembering chord
 (use-package which-key
@@ -223,19 +197,22 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   :bind (:map markdown-mode-map
               ("C-c C-e" . markdown-do)))
 
+;; Godot
+(use-package gdscript-mode
+  :ensure t
+  :hook (gdscript-mode . eglot-ensure))
+
+(use-package python)
+
 ;; Treesit and languages
 (setq treesit-language-source-alist
      '((python "https://github.com/tree-sitter/tree-sitter-python")
        (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
        (bash "https://github.com/tree-sitter/tree-sitter-bash")))
 
-;; Godot
-(use-package gdscript-mode
-  :ensure t
-  :hook (gdscript-mode . eglot-ensure))
-(add-to-list 'major-mode-remap-alist
-	     '(gdscript-mode . gdscript-ts-mode)
-	     '(sh-mode . bash-ts-mode))
+(add-to-list 'major-mode-remap-alist '(gdscript-mode . gdscript-ts-mode))
+(add-to-list 'major-mode-remap-alist '(sh-mode . bash-ts-mode))
+(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 
 ;; Configure bookmarks
 (use-package bookmark
