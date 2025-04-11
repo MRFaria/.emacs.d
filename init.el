@@ -1,5 +1,6 @@
 ;; prevent emacs from putting files everywhere
 (load-file "~/.emacs.d/no-littering.el")
+(package-install 'compat)
 (require 'no-littering)
 (no-littering-theme-backups)
 
@@ -71,7 +72,7 @@
 (setq completion-auto-help 'always)                  ; Open completion always; `lazy' another option
 (setq completion-auto-select 'second-tab)
 (setq completions-format 'one-column)
-(setq completions-max-height 10)
+(setq completions-max-height 20)
 (setq completions-group t)
 ;(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
@@ -176,7 +177,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
   (denote-rename-buffer-mode 1)
   (if (file-exists-p "~/.emacs.d/work.el")
-      (setq denote-directory (expand-file-name "M:/Documents/Notes"))
+      (setq denote-directory (expand-file-name "~/Documents/Notes"))
     (setq denote-directory (expand-file-name "~/SynologyDrive/notes")))
   (setq denote-file-type 'org) ;; Default file format
   (setq denote-known-keywords '("work" "personal" "ideas"))
@@ -231,12 +232,6 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   :bind
   ("<f8>" . bookmark-jump)
   ("<f9>" . bookmark-set))
-
-;; Version control
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)
-         ("C-x C-g" . magit-status)))
 
 ;; Make escape key stronger
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
