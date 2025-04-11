@@ -200,10 +200,15 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 
 ;; Godot
 (use-package gdscript-mode
-  :ensure t
-  :hook (gdscript-mode . eglot-ensure))
+  :ensure t)
 
-(use-package python)
+(use-package python
+  :hook (
+	 (gdscript-ts-mode . eglot-ensure)
+	 (gdscript-mode . eglot-ensure)
+	 (python-ts-mode . eglot-ensure)
+	 (python-mode . eglot-ensure))
+  )
 
 ;; Treesit and languages
 (setq treesit-language-source-alist
@@ -239,5 +244,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+
 
 (cua-mode t)
