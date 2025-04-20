@@ -74,6 +74,7 @@
 (setq completions-format 'one-column)
 (setq completions-max-height 20)
 (setq completions-group t)
+(setq read-file-name-completion-ignore-case t)
 ;(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
 ;; Recent Files
