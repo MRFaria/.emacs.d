@@ -65,6 +65,7 @@
 (require 'bind-key)
 
 
+
 (setq enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
 (setq completion-cycle-threshold 1)                  ; TAB cycles candidates
 (setq completions-detailed t)                        ; Show annotations
@@ -76,7 +77,6 @@
 (setq completions-max-height 20)
 (setq completions-group t)
 (setq read-file-name-completion-ignore-case t)
-;(keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
 ;; Recent Files
 (use-package recentf
