@@ -1,6 +1,7 @@
 ;; prevent emacs from putting files everywhere
-(load-file "~/.emacs.d/no-littering.el")
+;; depends on compat and should be loaded early
 (package-install 'compat)
+(load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
 (no-littering-theme-backups)
 
