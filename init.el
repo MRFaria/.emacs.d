@@ -202,12 +202,13 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 
 ;; Godot
 (use-package gdscript-mode
+  :hook (
+ 	 (gdscript-ts-mode . eglot-ensure)
+	 (gdscript-mode . eglot-ensure))
   :ensure t)
 
 (use-package python
   :hook (
-	 (gdscript-ts-mode . eglot-ensure)
-	 (gdscript-mode . eglot-ensure)
 	 (python-ts-mode . eglot-ensure)
 	 (python-mode . eglot-ensure))
   )
