@@ -2,7 +2,7 @@
 (load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
 (no-littering-theme-backups)
-(setenv "LANG" "en_US.UTF-8")
+
 ;; Set up custom.el file and work startup file
 (when (file-exists-p "~/.emacs.d/work.el")
   (load-file "~/.emacs.d/work.el")
@@ -117,41 +117,88 @@
   (which-key-add-key-based-replacements
    "M-m ?" "top level bindings"))
 
-;; Org mode and notes
+;; Org mode and notes location
 (if (file-exists-p "~/.emacs.d/work.el")
-    (setq note-directory (expand-file-name "C:/Users/FariaMRD/OneDrive - University of Twente/Notes"))
+    (setq note-directory (expand-file-name "C:/Users/FariaMRD/SynologyDrive/notes"))
   (setq note-directory (expand-file-name "~/SynologyDrive/notes")))
+;(let ((default-directory note-directory))
+;  (setq org-journal-dir (expand-file-name "journal")))
+
+;; org-agenda
+(require 'org)
+(defun jab/denote-add-to-agenda-files (keyword)
+  "Add files containing 'keyword' to `org-agenda-files` without duplication.
+Ignores backup files (`~`) and auto-save files (`#...#`)."
+  (interactive)
+  (let ((new-files (seq-filter 
+                    (lambda (f) (and (not (string-suffix-p "~" f))
+                                     (not (string-match-p "/#.*#$" f))))
+                    (directory-files note-directory t keyword))))
+    (setq org-agenda-files 
+          (delete-dups (append org-agenda-files new-files)))))
+(jab/denote-add-to-agenda-files "__journal")
+;;(setq org-agenda-files (list note-directory))
+
 (setq org-image-actual-width '(1024))
 (setq org-startup-with-inline-images t)
 (setq org-hide-emphasis-markers t)
 (setq org-agenda-skip-scheduled-if-done t)
 (setq org-agenda-skip-deadline-if-done t)
-(setq org-agenda-skip-function-global '(org-agenda-skip-entry-if 'todo 'done))
+
+ (define-skeleton org-header-skeleton
+"Header info for an Org file."
+"Title: ""#+TITLE:" str " \n"
+"#+DATE: " (format-time-string "%Y-%m-%d") "\n")
+
+(global-set-key [C-S-f1] 'org-header-skeleton) 
+
 (use-package org-sliced-images
   :ensure t
   :config (org-sliced-images-mode))
 (use-package org-download
   :ensure t
   :hook ('dired-mode-hook . 'org-download-enable))
-(setq-default org-download-image-dir note-directory)
+
 (use-package org-journal
   :ensure t
   :defer t
   :init
   ;; Change default prefix key; needs to be set before loading org-journal
+  (require 'org-inlinetask)
   (setq org-journal-prefix-key "C-c j ")
   :config
-  (setq org-journal-dir note-directory
-        org-journal-date-format "%A, %d %B %Y")
-  (setq org-journal-file-type 'yearly)
+  
+  (setq org-journal-file-header
+	(format "#+TITLE: Journal-%s\n#+CATEGORY: journal\n#+STARTUP: folded"
+		(format-time-string "%Y")))
+  (setq org-journal-enable-agenda-integration t)
+  (setq org-journal-dir note-directory)
+  (setq org-journal-date-format "%A, %d %B %Y")
+  (setq org-journal-file-type 'weekly)
+  (defun org-journal-file-header-func (time)
+    "Custom function to create journal header."
+    (concat
+     (pcase org-journal-file-type
+       (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything")
+       (`weekly (format-time-string "#+TITLE: Week-%V-%Y Journal\n#+STARTUP: folded"))
+       (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
+       (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
+  (setq org-journal-file-header 'org-journal-file-header-func)
+  (setq org-journal-file-format "Week-%V-%Y__journal.org")
   :bind
   ("<f7>" . org-journal-new-entry))
+
 (use-package deft
   :ensure t
   :config
   (setq deft-extensions '("txt" "tex" "org"))
   (setq deft-use-filename-as-title t)
-  (setq deft-directory note-directory))
+  (setq deft-directory note-directory)
+  (defun org-open-file-with-emacs (path)
+    "Temp replacement function"
+    (org-open-file path t)
+    )
+  )
 ;; Markdown mode
 (use-package markdown-mode
   :ensure t
@@ -222,6 +269,16 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
+(defun delete-visited-file (buffer-name)
+  "Delete the file visited by the buffer named BUFFER-NAME."
+  (interactive "bDelete file visited by buffer ")
+  (let* ((buffer (get-buffer buffer-name))
+         (filename (buffer-file-name buffer)))
+    (when buffer
+      (when (and filename
+                 (file-exists-p filename))
+        (delete-file filename))
+      (kill-buffer buffer))))
 (cua-mode t)
 (server-start)
+
