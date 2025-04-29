@@ -184,7 +184,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
        (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
        (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
   (setq org-journal-file-header 'org-journal-file-header-func)
-  (setq org-journal-file-format "Week-%V-%Y__journal.org")
+  (setq org-journal-file-format "%Y%m%d__Week-%V-%Y__journal.org")
   :bind
   ("<f7>" . org-journal-new-entry))
 
