@@ -1,10 +1,8 @@
-;; prevent emacs from putting files everywhere
-;; depends on compat and should be loaded early
 (package-install 'compat)
 (load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
 (no-littering-theme-backups)
-
+(setenv "LANG" "en_US.UTF-8")
 ;; Set up custom.el file and work startup file
 (when (file-exists-p "~/.emacs.d/work.el")
   (load-file "~/.emacs.d/work.el")
@@ -29,6 +27,7 @@
 (setq-default dired-listing-switches "-alh")
 (require 'dired-x)
 (add-hook 'dired-mode-hook 'hl-line-mode)
+(setq dired-dwim-target t)
 
 ;; Maximise frame and change active window size
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -108,7 +107,6 @@
 
 ;; Useful for remembering chord
 (use-package which-key
-  :ensure t
   :defer t
   :diminish which-key-mode
   :init
@@ -119,79 +117,41 @@
   (which-key-add-key-based-replacements
    "M-m ?" "top level bindings"))
 
-;; Org mode
+;; Org mode and notes
+(if (file-exists-p "~/.emacs.d/work.el")
+    (setq note-directory (expand-file-name "C:/Users/FariaMRD/OneDrive - University of Twente/Notes"))
+  (setq note-directory (expand-file-name "~/SynologyDrive/notes")))
 (setq org-image-actual-width '(1024))
 (setq org-startup-with-inline-images t)
 (setq org-hide-emphasis-markers t)
 (setq org-agenda-skip-scheduled-if-done t)
 (setq org-agenda-skip-deadline-if-done t)
 (setq org-agenda-skip-function-global '(org-agenda-skip-entry-if 'todo 'done))
-
 (use-package org-sliced-images
   :ensure t
   :config (org-sliced-images-mode))
-
-
-(defun jab/denote-add-to-agenda-files (keyword)
-  "Add files containing 'keyword' to `org-agenda-files` without duplication.
-Ignores backup files (`~`) and auto-save files (`#...#`)."
-  (interactive)
-  (let ((new-files (seq-filter 
-                    (lambda (f) (and (not (string-suffix-p "~" f))
-                                     (not (string-match-p "/#.*#$" f))))
-                    (directory-files denote-directory t keyword))))
-    (setq org-agenda-files 
-          (delete-dups (append org-agenda-files new-files)))))
-;; Denote
-(use-package denote
+(use-package org-download
   :ensure t
-  :commands (denote denote-open-or-create)
+  :hook ('dired-mode-hook . 'org-download-enable))
+(setq-default org-download-image-dir note-directory)
+(use-package org-journal
+  :ensure t
+  :defer t
+  :init
+  ;; Change default prefix key; needs to be set before loading org-journal
+  (setq org-journal-prefix-key "C-c j ")
   :config
-  ;; Pick dates, where relevant, with Org's advanced interface:
-  ;; Add all Denote files tagged as "project" to org-agenda-files
-  (setq denote-date-prompt-use-org-read-date t)
-
-  (defun my/denote--weekly-template ()
-    (concat
-     (format-time-string "#category: journal %G-%V\n\n" (current-time))
-     "* Monday\n\n"
-     "* Tuesday\n\n"
-     "* Wednesday\n\n"
-     "* Thursday\n\n"
-     "* Friday\n\n"
-     "* Saturday\n\n"
-     "* Sunday\n\n"
-     "* Notes"))
-
-  (setq denote-templates `((weekly . ,(my/denote--weekly-template))))
-
-  (defun my/denote-weekly ()
-    "Find or create a weekly journal entry."
-    (interactive)
-    (let* ((display-time (format-time-string "%G-%V" (current-time)))
-           (title (concat "week-" display-time))
-           (pattern (concat ".*--" title))
-           (matches (denote-directory-files pattern)))
-      (if matches
-          (find-file (car matches))
-	(denote title '("journal" "weekly") 'org nil nil 'weekly))))
-  
-  ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
-  (denote-rename-buffer-mode 1)
-  (if (file-exists-p "~/.emacs.d/work.el")
-      (setq denote-directory (expand-file-name "~/Documents/Notes"))
-    (setq denote-directory (expand-file-name "~/SynologyDrive/notes")))
-  (setq denote-file-type 'org) ;; Default file format
-  (setq denote-known-keywords '("work" "personal" "ideas"))
-
-  (jab/denote-add-to-agenda-files "__journal")
-  
+  (setq org-journal-dir note-directory
+        org-journal-date-format "%A, %d %B %Y")
+  (setq org-journal-file-type 'yearly)
   :bind
-  ("<f7>" . my/denote-weekly))
-
-(use-package denote-org :ensure t)
-(use-package denote-search :ensure t)
-
+  ("<f7>" . org-journal-new-entry))
+(use-package deft
+  :ensure t
+  :config
+  (setq deft-extensions '("txt" "tex" "org"))
+  (setq deft-use-filename-as-title t)
+  (setq deft-directory note-directory))
 ;; Markdown mode
 (use-package markdown-mode
   :ensure t
@@ -200,6 +160,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   :bind (:map markdown-mode-map
               ("C-c C-e" . markdown-do)))
 
+;; languages
 ;; Godot
 (use-package gdscript-mode
   :hook (
@@ -212,6 +173,20 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 	 (python-ts-mode . eglot-ensure)
 	 (python-mode . eglot-ensure))
   )
+
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode t)
+
+  ;; Set correct Python interpreter
+
+  (setq pyvenv-post-activate-hooks
+        (list (lambda ()
+                (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python.exe")))))
+  (setq pyvenv-post-deactivate-hooks
+        (list (lambda ()
+                (setq python-shell-interpreter "python")))))
 
 ;; Treesit and languages
 (setq treesit-language-source-alist
@@ -248,6 +223,5 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
-
-
 (cua-mode t)
+(server-start)
