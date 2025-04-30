@@ -63,8 +63,6 @@
   (require 'use-package))
 (require 'bind-key)
 
-
-
 (setq enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
 (setq completion-cycle-threshold 1)                  ; TAB cycles candidates
 (setq completions-detailed t)                        ; Show annotations
@@ -144,6 +142,8 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 (setq org-hide-emphasis-markers t)
 (setq org-agenda-skip-scheduled-if-done t)
 (setq org-agenda-skip-deadline-if-done t)
+(setq org-agenda-skip-timestamp-if-done t)
+(setq org-agenda-skip-todo-if-done t)
 
  (define-skeleton org-header-skeleton
 "Header info for an Org file."
