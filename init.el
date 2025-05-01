@@ -269,6 +269,7 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
 (defun delete-visited-file (buffer-name)
   "Delete the file visited by the buffer named BUFFER-NAME."
   (interactive "bDelete file visited by buffer ")
@@ -280,20 +281,13 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
         (delete-file filename))
       (kill-buffer buffer))))
 
-
-This code snippet is part of a larger function. It:
-1. Checks if a buffer variable is non-nil
-2. If so, and if a filename variable exists and points to an existing file, deletes that file
-3. Finally kills the buffer
-
-The double closing parentheses indicate this is the end of nested conditional blocks.
-
 ;; gptel
 (use-package gptel
   :ensure t
   :config
   (setq gptel-model 'claude-3.7-sonnet
-	gptel-backend (gptel-make-gh-copilot "Copilot")))
+	gptel-backend (gptel-make-gh-copilot "Copilot")
+	gptel-curl-file-size-threshold 8000))
 
 (cua-mode t)
 (server-start)
