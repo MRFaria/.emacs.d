@@ -25,3 +25,5 @@ transient/
 /var/
 /work.el
 server/server
+.cache/copilot-chat/github-token
+.cache/copilot-chat/
