@@ -27,3 +27,4 @@ transient/
 server/server
 .cache/copilot-chat/github-token
 .cache/copilot-chat/
+.cache/
