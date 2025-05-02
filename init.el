@@ -117,14 +117,12 @@
   (which-key-add-key-based-replacements
    "M-m ?" "top level bindings"))
 
-;; Org mode and notes location
+;; Notes 
 (if (file-exists-p "~/.emacs.d/work.el")
     (setq note-directory (expand-file-name "C:/Users/FariaMRD/SynologyDrive/notes"))
   (setq note-directory (expand-file-name "~/SynologyDrive/notes")))
-;(let ((default-directory note-directory))
-;  (setq org-journal-dir (expand-file-name "journal")))
 
-;; org-agenda
+;; Org
 (require 'org)
 (defun my/add-to-agenda-files (keyword)
   "Add files containing 'keyword' to `org-agenda-files` without duplication.
@@ -142,12 +140,6 @@
 (setq org-startup-with-inline-images t)
 (setq org-hide-emphasis-markers t)
 
- (define-skeleton org-header-skeleton
-"Header info for an Org file."
-"Title: ""#+TITLE:" str " \n"
-"#+DATE: " (format-time-string "%Y-%m-%d") "\n")
-(global-set-key [C-S-f1] 'org-header-skeleton) 
-
 (use-package org-sliced-images
   :ensure t
   :config (org-sliced-images-mode))
@@ -156,6 +148,7 @@
   :ensure t
   :hook ('dired-mode-hook . 'org-download-enable))
 
+;; Org journal
 (use-package org-journal
   :ensure t
   :defer t
@@ -185,6 +178,7 @@
   :bind
   ("<f7>" . org-journal-new-entry))
 
+;; Deft 
 (use-package deft
   :ensure t
   :config
@@ -196,6 +190,7 @@
     (org-open-file path t)
     )
   )
+
 ;; Markdown mode
 (use-package markdown-mode
   :ensure t
@@ -204,7 +199,6 @@
   :bind (:map markdown-mode-map
               ("C-c C-e" . markdown-do)))
 
-;; languages
 ;; Godot
 (use-package gdscript-mode
   :hook (
@@ -212,19 +206,16 @@
 	 (gdscript-mode . eglot-ensure))
   :ensure t)
 
+;; Python
 (use-package python
   :hook (
 	 (python-ts-mode . eglot-ensure)
-	 (python-mode . eglot-ensure))
-  )
-
+	 (python-mode . eglot-ensure)))
 (use-package pyvenv
   :ensure t
   :config
   (pyvenv-mode t)
-
   ;; Set correct Python interpreter
-
   (setq pyvenv-post-activate-hooks
         (list (lambda ()
                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python.exe")))))
@@ -232,12 +223,11 @@
         (list (lambda ()
                 (setq python-shell-interpreter "python")))))
 
-;; Treesit and languages
+;; Treesit
 (setq treesit-language-source-alist
      '((python "https://github.com/tree-sitter/tree-sitter-python")
        (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
        (bash "https://github.com/tree-sitter/tree-sitter-bash")))
-
 (add-to-list 'major-mode-remap-alist '(gdscript-mode . gdscript-ts-mode))
 (add-to-list 'major-mode-remap-alist '(sh-mode . bash-ts-mode))
 (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
