@@ -123,22 +123,25 @@
   (setq note-directory (expand-file-name "~/SynologyDrive/notes")))
 
 ;; Org
-(require 'org)
-(defun my/add-to-agenda-files (keyword)
-  "Add files containing 'keyword' to `org-agenda-files` without duplication.
+(use-package org
+  :ensure t
+  :config
+  (defun my/add-to-agenda-files (keyword)
+    "Add files containing 'keyword' to `org-agenda-files` without duplication.
    Ignores backup files (`~`) and auto-save files (`#...#`)."
-  (interactive)
-  (let ((new-files (seq-filter 
+    (interactive)
+    (let ((new-files (seq-filter 
                     (lambda (f) (and (not (string-suffix-p "~" f))
                                      (not (string-match-p "/#.*#$" f))))
                     (directory-files note-directory t keyword))))
-    (setq org-agenda-files 
-          (delete-dups (append org-agenda-files new-files)))))
-(my/add-to-agenda-files "__journal")
+      (setq org-agenda-files 
+            (delete-dups (append org-agenda-files new-files)))))
+  (my/add-to-agenda-files "__journal")
 
-(setq org-image-actual-width '(1024))
-(setq org-startup-with-inline-images t)
-(setq org-hide-emphasis-markers t)
+  (setq org-image-actual-width '(1024))
+  (setq org-startup-with-inline-images t)
+  (setq org-hide-emphasis-markers t)
+  )
 
 (use-package org-sliced-images
   :ensure t
@@ -146,7 +149,9 @@
 
 (use-package org-download
   :ensure t
-  :hook ('dired-mode-hook . 'org-download-enable))
+  :hook ('dired-mode-hook . 'org-download-enable)
+  :config
+  (setq org-download-image-dir (expand-file-name "images" note-directory)))
 
 ;; Org journal
 (use-package org-journal
@@ -169,10 +174,10 @@
     "Custom function to create journal header."
     (concat
      (pcase org-journal-file-type
-       (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything")
-       (`weekly (format-time-string "#+TITLE: Week-%V-%Y Journal\n#+STARTUP: folded"))
-       (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
-       (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
+       (`daily "#+TITLE: Daily Journal\n#+STARTUP: overview")
+       (`weekly (format-time-string "#+TITLE: Week-%V-%Y Journal\n#+STARTUP: overview"))
+       (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: overview")
+       (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: overview"))))
   (setq org-journal-file-header 'org-journal-file-header-func)
   (setq org-journal-file-format "%Y%m%d__Week-%V-%Y__journal.org")
   :bind
