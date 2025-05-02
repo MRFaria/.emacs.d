@@ -279,5 +279,10 @@
   :config
   (setq gptel-model 'claude-3.7-sonnet
 	gptel-backend (gptel-make-gh-copilot "Copilot")
-	gptel-curl-file-size-threshold 8000))
+	gptel-curl-file-size-threshold 8000)
+  :bind
+  ("C-c C-<return>" . gptel-send))
 
+(use-package dired-sidebar
+  :ensure t
+  :commands (dired-sidebar-toggle-sidebar))
