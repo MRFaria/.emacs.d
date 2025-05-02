@@ -1,3 +1,5 @@
+(cua-mode t)
+(server-start)
 (package-install 'compat)
 (load-file "~/.emacs.d/no-littering.el")
 (require 'no-littering)
@@ -124,9 +126,9 @@
 
 ;; org-agenda
 (require 'org)
-(defun jab/denote-add-to-agenda-files (keyword)
+(defun my/add-to-agenda-files (keyword)
   "Add files containing 'keyword' to `org-agenda-files` without duplication.
-Ignores backup files (`~`) and auto-save files (`#...#`)."
+   Ignores backup files (`~`) and auto-save files (`#...#`)."
   (interactive)
   (let ((new-files (seq-filter 
                     (lambda (f) (and (not (string-suffix-p "~" f))
@@ -134,27 +136,22 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
                     (directory-files note-directory t keyword))))
     (setq org-agenda-files 
           (delete-dups (append org-agenda-files new-files)))))
-(jab/denote-add-to-agenda-files "__journal")
-;;(setq org-agenda-files (list note-directory))
+(my/add-to-agenda-files "__journal")
 
 (setq org-image-actual-width '(1024))
 (setq org-startup-with-inline-images t)
 (setq org-hide-emphasis-markers t)
-(setq org-agenda-skip-scheduled-if-done t)
-(setq org-agenda-skip-deadline-if-done t)
-(setq org-agenda-skip-timestamp-if-done t)
-(setq org-agenda-skip-todo-if-done t)
 
  (define-skeleton org-header-skeleton
 "Header info for an Org file."
 "Title: ""#+TITLE:" str " \n"
 "#+DATE: " (format-time-string "%Y-%m-%d") "\n")
-
 (global-set-key [C-S-f1] 'org-header-skeleton) 
 
 (use-package org-sliced-images
   :ensure t
   :config (org-sliced-images-mode))
+
 (use-package org-download
   :ensure t
   :hook ('dired-mode-hook . 'org-download-enable))
@@ -288,7 +285,3 @@ Ignores backup files (`~`) and auto-save files (`#...#`)."
   (setq gptel-model 'claude-3.7-sonnet
 	gptel-backend (gptel-make-gh-copilot "Copilot")
 	gptel-curl-file-size-threshold 8000))
-
-(cua-mode t)
-(server-start)
-
