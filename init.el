@@ -286,3 +286,9 @@
 (use-package dired-sidebar
   :ensure t
   :commands (dired-sidebar-toggle-sidebar))
+
+
+(use-package flycheck-vale
+  :ensure t
+  :config
+  (flycheck-vale-setup))
