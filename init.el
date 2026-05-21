@@ -1,5 +1,4 @@
 ;; Set up packages
-
 (require 'package)
 (setq package-archives
       '(("GNU ELPA"     . "https://elpa.gnu.org/packages/")
