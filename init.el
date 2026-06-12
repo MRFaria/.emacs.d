@@ -1,3 +1,4 @@
+
 ;; Set up packages
 (require 'package)
 (setq package-archives
@@ -11,7 +12,10 @@
 
 (require 'recentf)
 (require 'use-package)
+(require 'winner)
+(winner-mode)
 (server-start)
+(global-tab-line-mode)
 
 ;; Make escape stronger
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
@@ -78,27 +82,37 @@
 (add-hook 'dired-mode-hook 'hl-line-mode)
 (setq dired-dwim-target t)
 
+(use-package org-ql
+  :ensure t
+  )
+
 ;; Org journal
 (if (file-exists-p "~/.emacs.d/work.el")
-    (setq note-directory (expand-file-name "~/Nextcloud/journal/"))
-  (setq note-directory (expand-file-name "~/Nextcloud/journal/")))
+    (setq note-directory (expand-file-name "~/Nextcloud/notes")) ; If work.el exists
+  (setq note-directory (expand-file-name "~/Nextcloud/notes")))  ; If work.el does NOT exist
 
-(use-package org-journal
-  :ensure t
-  :defer t
-  :init
-  ;; Change default prefix key; needs to be set before loading org-journal
-  (require 'org-inlinetask)
-  (setq org-journal-prefix-key "C-c j ")
-  :config
-  (setq org-journal-enable-agenda-integration t)
-  (setq org-journal-dir note-directory)
-  (setq org-journal-date-format "%A, %Y-%m-%d")
-  (setq org-journal-file-type 'daily)
-  ;;(setq org-journal-file-format "%Y%m%d__Week-%V-%Y__journal.org")
-  :bind
-  ("<f7>" . org-journal-new-entry))
+(defun my/jump-to-notes-folder ()
+  "Instantly jump to the notes directory using Dired."
+  (interactive)
+  (dired note-directory))
 
+;; Bind the F9 key globally to jump to your notes
+(global-set-key (kbd "<f9>") 'my/jump-to-notes-folder)
+
+(setq org-default-notes-file (concat note-directory "/capture.org"))
+
+;; Fix: Use 'list' instead of a quoted mark so 'concat' can actually run
+(setq org-agenda-files (list (concat note-directory "/projects/") 
+                             (concat note-directory "/journal/")))
+
+;; 2. Use your exact path inside the capture template
+(setq org-capture-templates
+      '(("j" "Yearly Journal" entry
+         (file+olp+datetree (concat note-directory "/journal.org"))
+         "* %U\n%?")))
+
+;; 3. Bind it to your favorite key
+(global-set-key (kbd "<f7>") (lambda () (interactive) (org-capture nil "j")))
 
 ;; Treesit
 (setq treesit-language-source-alist
