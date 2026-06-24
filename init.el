@@ -1,9 +1,8 @@
 ;;; =========================
 ;;; PACKAGE SYSTEM
 ;;; =========================
-
 (require 'package)
-
+(setq package-install-upgrade-built-in t)
 (setq package-archives
       '(("GNU ELPA"     . "https://elpa.gnu.org/packages/")
         ("MELPA Stable" . "https://stable.melpa.org/packages/")
@@ -28,7 +27,7 @@
 (winner-mode 1)
 (recentf-mode 1)
 (server-start)
-
+(setq switch-to-buffer-obey-display-actions t)
 (setq inhibit-startup-message t
       inhibit-splash-screen t
       initial-major-mode 'fundamental-mode
@@ -59,7 +58,6 @@
 (context-menu-mode 1)
 
 (global-tab-line-mode 1)
-(tab-bar-mode 1)
 
 (global-set-key (kbd "M-[") 'tab-bar-history-back)
 (global-set-key (kbd "M-]") 'tab-bar-history-forward)
@@ -91,7 +89,6 @@
       completions-group t
       read-file-name-completion-ignore-case t)
 
-
 ;;; =========================
 ;;; RECENT FILES
 ;;; =========================
@@ -118,14 +115,18 @@
 
 (use-package org
   :ensure t)
-
 (use-package org-roam
   :ensure t
-  :after org
+  :init
+  (setq org-roam-v2-ack t)
   :custom
   (org-roam-directory note-directory)
-  (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory))
   (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         :map org-mode-map
+         ("C-M-i"    . completion-at-point))
   :config
   (org-roam-setup))
 
@@ -140,23 +141,28 @@
             (concat note-directory "journal/")))
 
 (setq org-capture-templates
-      `(("j" "Yearly Journal" entry
+      `(
+        ("j" "Yearly Journal" entry
          (file+olp+datetree
-          ,(concat note-directory "/journal/" (format-time-string "%Y-journal.org"))
+          ,(concat note-directory "/journal/"
+                   (format-time-string "%Y-journal.org"))
           "Journal")
-         "* %<%H:%M>\n%?"
+         "* %<%H:%M>\n%?")
 
-         ("e" "Event" entry
-          (file+headline
-           ,(concat note-directory "/journal/" (format-time-string "%Y-journal.org"))
-           "Events")
-          "* %?\n%^T")
+        ("e" "Event" entry
+         (file+headline
+          ,(concat note-directory "/journal/"
+                   (format-time-string "%Y-journal.org"))
+          "Events")
+         "* %?\n%^T")
 
-         ("t" "Task" entry
-          (file+headline
-           ,(concat note-directory "/journal/" (format-time-string "%Y-journal.org"))
-           "Tasks")
-          "* TODO %?\nSCHEDULED: %^t"))))
+        ("t" "Task" entry
+         (file+headline
+          ,(concat note-directory "/journal/"
+                   (format-time-string "%Y-journal.org"))
+          "Tasks")
+         "* TODO %?\nSCHEDULED: %^t")
+        ))
 
 (defun my-open-notes ()
   "Open current year's journal."
@@ -185,7 +191,6 @@
 
 (use-package tree-sitter :ensure t)
 (use-package tree-sitter-langs :ensure t)
-
 
 ;;; =========================
 ;;; PACKAGING / FILE CLEANUP
